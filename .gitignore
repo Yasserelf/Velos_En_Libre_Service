@@ -1,0 +1,35 @@
+/bin/
+# Fichiers générés par l'IDE
+.idea/
+*.iml
+*.iws
+*.ipr
+*.iws
+out/
+
+# Répertoire de build
+target/
+
+# Fichiers de configuration
+*.log
+*.log.*
+*.db
+*.sqlite
+*.conf
+*.properties
+
+
+# Répertoire d'artefacts de construction
+build/
+
+# Répertoire d'artefacts de test
+test-output/
+
+# Fichiers de sauvegarde
+*~
+*#
+
+# Fichiers système
+.DS_Store
+Thumbs.db
+

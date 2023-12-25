@@ -1,0 +1,23 @@
+JC = javac
+JV = java
+JD = javadoc
+
+
+cls: 
+	$(JC) -sourcepath src -d classes src/main/Main.java
+	$(JV) -classpath classes main.Main
+
+docs : 
+	$(JD) -sourcepath src -d docs src/*/*.java
+
+velo_libre_service.jar:
+	jar -cfm jar/velo_libre_service.jar MANIFEST.MF -C classes velo_libre_service
+	java -jar jar/velo_libre_service.jar  
+	
+
+clean :
+	rm -r classes
+	rm -r docs
+
+
+.PHONY: clean all
