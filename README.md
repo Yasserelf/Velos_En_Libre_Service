@@ -1,15 +1,12 @@
 # Vélos Libre Service - Projet de Conception Orientée Objet (COO) en Java
 
-**Binôme :**
-- Yasser El Fakhouri
-- Mohamed Bouziane
 
 Ce projet de simulation vise à modéliser un système de location de vélos en libre-service, inspiré par des services tels que Vélib' ou V'Lille. La simulation comprend la gestion des stations de location, des vélos, d'un centre de contrôle, et intègre des fonctionnalités telles que la redistribution des vélos, les réparations, et la gestion des vols.
 
 ## Fonctionnalités
 
 1. **Stations de Location :**
-    Les stations sont représentées par la classe `Station`, qui prend plusieurs types de véhicules de la classe `Rentable`, paramétrée par des classes de type `CanBeRented` qui représentent tout véhicule.
+   - Les stations sont représentées par la classe `Station`, qui prend plusieurs types de véhicules de la classe `Rentable`, paramétrée par des classes de type `CanBeRented` qui représentent tout véhicule.
    - Chaque station est définie par un identifiant unique et une capacité d'accueil (de 10 à 20 emplacements).
    - Un véhicule peut être déposé dans un emplacement vide et retiré d'un emplacement occupé.
 
@@ -63,7 +60,10 @@ Le programme est conçu de manière modulaire pour faciliter l'extension avec de
 
 ## Comment Utiliser le Programme
 
-    - À faire plus tard
+- Compilation et création du Jar : make
+- Exécution : make run
+- Création de la doc : make docs
+- Exécution des tests : make test  
 
 ## Perspectives d'Amélioration
 
