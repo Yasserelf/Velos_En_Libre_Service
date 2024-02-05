@@ -6,7 +6,6 @@ import Strategie.EqualRedistribution;
 import Strategie.RedistributionStrategy;
 import Staff.Repairer;
 
-import static org.junit.Assert.fail;
 
 import java.util.*;
 import equipements.Status;
@@ -16,6 +15,9 @@ import Exceptions.EmptySpaceException;
 import Exceptions.FullStationException;
 import Exceptions.OutOfServiceException;
 
+/**
+ * The central control center managing the bike rental system.
+ */
 public class ControlCenter {
     private List<Rentable<?>> allRentables;
     private List<Rentable<?>> rentedList;
@@ -35,6 +37,9 @@ public class ControlCenter {
     private int nbOfTotalRepairRound;
     private RedistributionStrategy redistributionStrategy;
 
+    /**
+     * Private constructor to enforce the singleton pattern.
+     */
     private ControlCenter() {
         this.allRentables = new ArrayList<Rentable<?>>();
         this.rentedList = new ArrayList<Rentable<?>>();
@@ -48,9 +53,13 @@ public class ControlCenter {
         this.nbOfStolen = 0;
         this.nbOfTotalDeposit = 0;
         this.nbOfTotalRepairRound = 0;
-
     }
 
+    /**
+     * Gets the singleton instance of the control center.
+     *
+     * @return The control center instance.
+     */
     public static ControlCenter getControlCenter() {
         if (controlCenter == null) {
             controlCenter = new ControlCenter();
@@ -58,71 +67,113 @@ public class ControlCenter {
         return controlCenter;
     }
 
-    public Map<Rentable<?>, Integer[]> getCanBeStolen() {
-        return this.canBeStolen;
+    public void setNullControlCenter() {
+        controlCenter = null;
     }
 
+    /**
+     * Gets the list of all rentable items.
+     *
+     * @return The list of all rentable items.
+     */
     public List<Rentable<?>> getAllRentables() {
         return this.allRentables;
     }
 
-    public Map<Station, Integer> getEmptyOrFullStations() {
-        return this.emptyOrFullStations;
-    }
-
+    /**
+     * Gets the duration for redistribution.
+     *
+     * @return The redistribution duration.
+     */
     public int getRedistributionDuration() {
         return ControlCenter.redistributionDuration;
     }
 
-    public Repairer getRepairer() {
-        return this.repairer;
-    }
-
-    public int getReparationDuration() {
-        return ControlCenter.repairDuration;
-    }
-
+    /**
+     * Sets the redistribution strategy.
+     *
+     * @param strategy The redistribution strategy to set.
+     */
     public void setRedistributionStrategy(RedistributionStrategy strategy) {
         this.redistributionStrategy = strategy;
     }
 
+    /**
+     * Gets the list of stations.
+     *
+     * @return The list of stations.
+     */
     public List<Station> getStationList() {
         return this.stationList;
     }
 
+    /**
+     * Gets the list of rented items.
+     *
+     * @return The list of rented items.
+     */
     public List<Rentable<?>> getRentedList() {
         return this.rentedList;
     }
 
+    /**
+     * Sets the list of all rentable items.
+     *
+     * @param allRentables The list of all rentable items to set.
+     */
     public void setAllRentables(List<Rentable<?>> allRentables) {
         this.allRentables = allRentables;
     }
 
+    /**
+     * Sets the redistribution duration.
+     *
+     * @param duration The redistribution duration to set.
+     */
     public void setRedistributionDuration(int duration) {
         ControlCenter.redistributionDuration = duration;
     }
 
+    /**
+     * Sets the list of stations.
+     *
+     * @param stations The list of stations to set.
+     */
     public void setStationList(List<Station> stations) {
         this.stationList = stations;
     }
 
+    /**
+     * Sets the list of rented items.
+     *
+     * @param rentedList The list of rented items to set.
+     */
     public void setRentedList(List<Rentable<?>> rentedList) {
         this.rentedList = rentedList;
     }
 
+    /**
+     * Adds a station to the list of stations.
+     *
+     * @param s The station to add.
+     */
     public void addStation(Station s) {
         if (!this.stationList.contains(s))
             this.stationList.add(s);
     }
 
-    public void setTime(int time) {
-        this.timeNow = time;
-    }
-
+    /**
+     * Checks the current time.
+     *
+     * @return The current time.
+     */
     public int checkTime() {
         return this.timeNow;
     }
 
+    /**
+     * Puts stations in the map for empty or full stations.
+     */
     public void putEmptyOrFullStations() {
         List<Station> stations = new ArrayList<>();
         for (Station s : this.stationList) {
@@ -140,6 +191,13 @@ public class ControlCenter {
         }
     }
 
+    /**
+     * Checks if redistribution is required and initiates the redistribution.
+     *
+     * @throws EmptySpaceException   If there is an empty space.
+     * @throws OutOfServiceException If the rentable is out of service.
+     * @throws FullStationException  If the station is full.
+     */
     public void checkIfRedistribute() throws EmptySpaceException, OutOfServiceException, FullStationException {
         for (Station s : this.emptyOrFullStations.keySet()) {
             if (this.timeNow == this.emptyOrFullStations.get(s)) {
@@ -150,12 +208,19 @@ public class ControlCenter {
                             + " Number of available for rent Rentables is : " + stat.getJustRentables().size());
                 }
                 this.redistributionStrategy.redistribute(this.stationList);
+                System.out.println();
                 System.out.println("Redistribution started,  here is the state of stations after redistribution : ");
+                System.out.println();
                 for (Station stat : this.stationList) {
                     System.out.println("Station Name: " + stat.getStationId()
                             + " Number of available for rent Rentables is : " + stat.getJustRentables().size());
                 }
                 System.out.println("-------------------------");
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
                 this.red++;
                 this.emptyOrFullStations.clear();
                 break;
@@ -163,6 +228,11 @@ public class ControlCenter {
         }
     }
 
+    /**
+     * Puts rentables in the map if they can be stolen.
+     *
+     * @throws EmptySpaceException If there is an empty space.
+     */
     public void putIfCanBeStolen() throws EmptySpaceException {
         List<Rentable<?>> removedList = new ArrayList<>();
         for (Station s : this.stationList) {
@@ -188,6 +258,9 @@ public class ControlCenter {
         }
     }
 
+    /**
+     * Checks if rentables are stolen and removes them if necessary.
+     */
     public void checkIfStolen() {
         Rentable<?> removedRentable = null;
         for (Rentable<?> r : this.canBeStolen.keySet()) {
@@ -208,13 +281,29 @@ public class ControlCenter {
         }
         if (removedRentable != null)
             this.canBeStolen.remove(removedRentable);
+        ;
     }
 
+    /**
+     * Sends a rentable to repair.
+     *
+     * @param r The rentable to send to repair.
+     */
     public void sendToRepair(Rentable<?> r) {
         this.repairer.addOnRepair(r, this.timeNow + ControlCenter.repairDuration);
         this.nbOfTotalRepairRound++;
     }
 
+    /**
+     * Processes rentable deposit before actual deposit.
+     *
+     * @param r           The rentable to deposit.
+     * @param station     The station to deposit the rentable.
+     * @param emplacement The emplacement to deposit the rentable.
+     * @throws AlreadyDepositException If the rentable is already deposited.
+     * @throws FullStationException    If the station is full.
+     * @throws EmptySpaceException     If there is an empty space.
+     */
     public void beforeDeposit(Rentable<?> r, Station station, int emplacement)
             throws AlreadyDepositException, FullStationException, EmptySpaceException {
         for (Station s : this.getStationList()) {
@@ -233,6 +322,15 @@ public class ControlCenter {
         }
     }
 
+    /**
+     * Processes rentable rent before actual rent.
+     *
+     * @param station     The station from which the rentable is rented.
+     * @param emplacement The emplacement from which the rentable is rented.
+     * @throws AlreadyRentedException If the rentable is already rented.
+     * @throws EmptySpaceException    If there is an empty space.
+     * @throws OutOfServiceException  If the rentable is out of service.
+     */
     public void beforeRent(Station station, int emplacement)
             throws AlreadyRentedException, EmptySpaceException, OutOfServiceException {
         Rentable<?> r = null;
@@ -251,12 +349,16 @@ public class ControlCenter {
         station.rent(emplacement);
         this.nbOfRentedTotal++;
         station.incRentedRound();
-
     }
 
+    /**
+     * Prints statistics related to the control center's state.
+     *
+     * @param nbRepaired The number of rentables repaired.
+     */
     public void printStatistics(int nbRepaired) {
         for (Station s : this.stationList) {
-            System.out.println("Station Name: " + s.getStationId() + " Rented from : " + s.getRendtedRound()
+            System.out.println("Station Name: " + s.getStationId() + " Rented from : " + s.getRentedRound()
                     + " Deposit in : " + s.getNbOfDeposit());
             s.renNbOfDeposit();
             s.renRentedRound();
@@ -271,13 +373,22 @@ public class ControlCenter {
         this.nbOfTotalRepairRound = 0;
     }
 
+    /**
+     * Simulates the operation of the control center.
+     *
+     * @throws AlreadyRentedException  If the rentable is already rented.
+     * @throws EmptySpaceException     If there is an empty space.
+     * @throws OutOfServiceException   If the rentable is out of service.
+     * @throws AlreadyDepositException If the rentable is already deposited.
+     * @throws FullStationException    If the station is full.
+     */
     public void simulate() throws AlreadyRentedException, EmptySpaceException, OutOfServiceException,
             AlreadyDepositException, FullStationException {
         int randomLocation;
         int res;
 
         while (true) {
-            res = random.nextInt(this.stationList.size() / 2, this.stationList.size());
+            res = random.nextInt(this.stationList.size() / 2) + this.stationList.size() / 2;
             while (res >= 0) {
                 int randomIndexOfStation = this.getRandomWeightedStationIndex(1);
                 if (this.stationList.get(randomIndexOfStation).getIdOfNoneEmptyplaces().size() > 0) {
@@ -312,23 +423,21 @@ public class ControlCenter {
             this.printStatistics(repaired);
 
             this.timeNow++;
-
-            if (this.red == 200) {
-                fail();
+            
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
-
-            /*
-             * try {
-             * Thread.sleep(1000);
-             * } catch (InterruptedException e) {
-             * e.printStackTrace();
-             * }
-             */
-
         }
-
     }
 
+    /**
+     * Gets a random weighted station index.
+     *
+     * @param choix The choice between rent and deposit.
+     * @return The index of the randomly selected station.
+     */
     private int getRandomWeightedStationIndex(int choix) {
         List<Double> weightsList;
         List<Double> weightsListdep = new ArrayList<>();
@@ -337,11 +446,11 @@ public class ControlCenter {
         int j = 0;
         for (Station s : this.stationList) {
             if (j < BigStations) {
-                weightsListrent.add(random.nextDouble(3, 6));
-                weightsListdep.add(random.nextDouble(0, 2));
+                weightsListrent.add(2 * random.nextDouble() + 2);
+                weightsListdep.add(2 * random.nextDouble());
             } else {
-                weightsListrent.add(random.nextDouble(0, 2));
-                weightsListdep.add(random.nextDouble(3, 6));
+                weightsListrent.add(2 * random.nextDouble());
+                weightsListdep.add(2 * random.nextDouble() + 2);
             }
             j++;
         }
@@ -363,6 +472,53 @@ public class ControlCenter {
         }
 
         return -1;
+    }
+
+    /**
+     * Gets the map of stations that are either empty or full, along with the
+     * associated time.
+     *
+     * @return The map containing stations and associated time.
+     */
+    public Map<Station, Integer> getEmptyOrFullStations() {
+        return this.emptyOrFullStations;
+    }
+
+    /**
+     * Sets the current simulation time.
+     *
+     * @param time The simulation time to set.
+     */
+    public void setTime(int time) {
+        this.timeNow = time;
+    }
+
+    /**
+     * Gets the map of rentable objects that can be stolen, along with associated
+     * information.
+     *
+     * @return The map containing rentable objects and associated information.
+     */
+    public Map<Rentable<?>, Integer[]> getCanBeStolen() {
+        return this.canBeStolen;
+    }
+
+    /**
+     * Gets the instance of the Repairer responsible for managing repairs.
+     *
+     * @return The Repairer instance.
+     */
+    public Repairer getRepairer() {
+        return this.repairer;
+    }
+
+    /**
+     * Gets the duration required for repairs.
+     *
+     * @return The duration required for repairs.
+     */
+    public int getReparationDuration() {
+        return ControlCenter.repairDuration;
     }
 
 }
